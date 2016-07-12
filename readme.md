@@ -406,7 +406,9 @@ Route::get('/post/{post}', [
 ```
 
 
-###Usando Directevas de Blade 
+###Usando Directivas de Blade 
+
+El paquete nos brinda de algunas etiquetas que podemos utilizar en Blade para ahorrarnos el trabajo en las vistas:
 
 ```php
 @role('writer')
@@ -444,3 +446,8 @@ I don't have all of these roles...
 @endpermission
 
 
+## Errores y Seguridad
+Si de casualidad descubre algun error funcional, o alguna fuga de seguridad, no dude en comunicarse con sojeda@galpservices.com
+
+## Creditos
+Este paquete esta basado en [Spatie/laravel-permission](https://github.com/spatie/laravel-permission)
