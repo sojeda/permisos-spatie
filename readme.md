@@ -416,6 +416,7 @@ I'm a writer!
 @else
 I'm not a writer...
 @endrol
+```
 
 ```php
 @hasrole('writer')
@@ -439,12 +440,12 @@ I have all of these roles!
 @else
 I don't have all of these roles...
 @endhasallroles
-
-
+```
+```php
 @permission('viewAdmin')
 	I have permission to viewAdmin
 @endpermission
-
+```
 
 ## Errores y Seguridad
 Si de casualidad descubre algun error funcional, o alguna fuga de seguridad, no dude en comunicarse con sojeda@galpservices.com
