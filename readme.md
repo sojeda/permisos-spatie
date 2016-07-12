@@ -1,3 +1,11 @@
+### Que es un ACL
+Una lista de control de acceso o ACL (del inglés, access control list) es un concepto de seguridad informática usado para fomentar la separación de privilegios. Es una forma de determinar los permisos de acceso apropiados a un determinado objeto, dependiendo de ciertos aspectos del proceso que hace el pedido.
+
+Las listas de control de acceso permiten gestionar detalladamente los permisos de una aplicación de forma sencilla y escalable.
+
+Las listas de control de acceso, o ACL, manejan principalmente dos cosas: las entidades que solicitan el control de algo y las entidades que se quiere controlar. En la jerga de ACL, las entidades que quieren controlar algo, que la mayoría de las veces son los usuarios, son los ARO (en inglés access request objects), y las entidades del sistema que se quiere controlar, que normalmente son acciones o datos, son los ACO (en inglés access control objects). A los ARO se les llama ‘objetos’ porque quien realiza la petición no siempre es una persona; los ACO son cualquier cosa que desees controlar: desde la acción de un controlador o un servicio Web, hasta el diario en línea íntimo de tu abuela.
+
+## Paquete
 
 Este paquete nos permite guardar permisos y roles en Base de Datos. Se basa en la funcionalidad de [Autorizacion de Laravel] (http://laravel.com/docs/5.1/authorization). introducida en la versión 5.1.11.
 Una vez instalado, se puede hacer cosas como esta:
@@ -94,6 +102,178 @@ php artisan vendor:publish --provider="Galpa\Permission\PermissionServiceProvide
 Este paquete asume que la tabla de usuarios es llamada "users". Si no es el caso, se debe editar manualmente en la migracion que se importe con el comando anterior.
 
 Se pueden cambiar los nombre de las tablas que vienen por defecto, a tráves del archivo laravel-permission.php que se publica dentro del config de la aplicacion.
+
+```php
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authorization Models
+    |--------------------------------------------------------------------------
+    */
+
+    'models' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Permission Model
+        |--------------------------------------------------------------------------
+        |
+        | When using the "HasRoles" trait from this package, we need to know which
+        | Eloquent model should be used to retrieve your permissions. Of course, it
+        | is often just the "Permission" model but you may use whatever you like.
+        |
+        | The model you want to use as a Permission model needs to implement the
+        | `Spatie\Permission\Contracts\Permission` contract.
+        |
+        */
+
+        'permission' => Galpa\Permission\Models\Permission::class,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Role Model
+        |--------------------------------------------------------------------------
+        |
+        | When using the "HasRoles" trait from this package, we need to know which
+        | Eloquent model should be used to retrieve your roles. Of course, it
+        | is often just the "Role" model but you may use whatever you like.
+        |
+        | The model you want to use as a Role model needs to implement the
+        | `Spatie\Permission\Contracts\Role` contract.
+        |
+        */
+
+        'role' => Galpa\Permission\Models\Role::class,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Groups Permission Model
+        |--------------------------------------------------------------------------        
+        |
+        */
+
+        'group' => Galpa\Permission\Models\PermissionGroup::class,
+
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authorization Tables
+    |--------------------------------------------------------------------------
+    */
+
+    'table_names' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Users Table
+        |--------------------------------------------------------------------------
+        |
+        | The table that your application uses for users. This table's model will
+        | be using the "HasRoles" and "HasPermissions" traits.
+        |
+        */
+        'users' => 'users',
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Roles Table
+        |--------------------------------------------------------------------------
+        |
+        | When using the "HasRoles" trait from this package, we need to know which
+        | table should be used to retrieve your roles. We have chosen a basic
+        | default value but you may easily change it to any table you like.
+        |
+        */
+
+        'roles' => 'roles',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Permissions Table
+        |--------------------------------------------------------------------------
+        |
+        | When using the "HasRoles" trait from this package, we need to know which
+        | table should be used to retrieve your permissions. We have chosen a basic
+        | default value but you may easily change it to any table you like.
+        |
+        */
+
+        'permissions' => 'permissions',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Group Permissions Table
+        |--------------------------------------------------------------------------
+        |
+        */
+
+        'permission_groups' => 'permission_groups',
+
+        /*
+        |--------------------------------------------------------------------------
+        | User Permissions Table
+        |--------------------------------------------------------------------------
+        |
+        | When using the "HasRoles" trait from this package, we need to know which
+        | table should be used to retrieve your users permissions. We have chosen a
+        | basic default value but you may easily change it to any table you like.
+        |
+        */
+
+        'user_has_permissions' => 'user_has_permissions',
+
+        /*
+        |--------------------------------------------------------------------------
+        | User Roles Table
+        |--------------------------------------------------------------------------
+        |
+        | When using the "HasRoles" trait from this package, we need to know which
+        | table should be used to retrieve your users roles. We have chosen a
+        | basic default value but you may easily change it to any table you like.
+        |
+        */
+
+        'user_has_roles' => 'user_has_roles',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Role Permissions Table
+        |--------------------------------------------------------------------------
+        |
+        | When using the "HasRoles" trait from this package, we need to know which
+        | table should be used to retrieve your roles permissions. We have chosen a
+        | basic default value but you may easily change it to any table you like.
+        |
+        */
+
+        'role_has_permissions' => 'role_has_permissions',
+
+    ],
+
+    /*
+     * The path to redirect for login.
+     */
+    'login_url' => 'auth/login',
+
+    /*
+     * Active
+     */
+    'active' => true,
+
+    /*
+     * Default Actions for New Permissions Groups
+     */
+    'actions' => [
+        'create','update','read','delete','excel','pdf','print','refresh'
+    ]
+
+];
+```
 
 Luego hay que importar las migraciones 
 
