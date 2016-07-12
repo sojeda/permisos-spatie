@@ -1,27 +1,203 @@
-## Laravel PHP Framework
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
+Este paquete nos permite guardar permisos y roles en Base de Datos. Se basa en la funcionalidad de [Autorizacion de Laravel] (http://laravel.com/docs/5.1/authorization). introducida en la versión 5.1.11.
+Una vez instalado, se puede hacer cosas como esta:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
+```php
+//Agregar Permisos a un Usuario
+$user->givePermissionTo('edit articles');
 
-Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
+// Agregar permisos via Roles
+$user->assignRole('writer');
+$user2->assignRole('writer');
 
-## Official Documentation
+$role->givePermissionTo('edit articles');
+```
+Para probar si un usuario tiene un permiso se puede utilizan la función `can`
+```php
+$user->can('edit articles');
+```
+La protección de una ruta se puede realizar agregando un middleware a la misma:
 
-Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
+```php
+Route::get('/top-secret-page', [
+   'middleware'=> 'can:viewTopSecretPage',
+   'uses' => 'TopSecretController@index',
+]);
+```
+ Y por supuesto, este middleware también se puede aplicar a un grupo de rutas:
+```php
+Route::group(['prefix' => 'admin', 'middleware' => 'can:viewAdmin'], function() {
 
-## Contributing
+   // Todos los controladores de la sección Admin
+   ...
+   
+});
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
+Además  el middleware puede usar [route model binding](https://laracasts.com/series/laravel-5-fundamentals/episodes/18):
+```php
+Route::get('/post/{post}', [
+   'middleware'=> 'can:editPost,post',
+   'uses' => 'PostController@edit'),
+]);
+```
 
-## Security Vulnerabilities
+## Instalación
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+Se puede instalar el package via composer:
+``` bash
+$ composer require galpa/permission
+```
 
-### License
+Luego, es necesario instalar el Service Provider
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+```php
+// config/app.php
+'providers' => [
+    ...
+    /*
+     * Galpa Providers
+     */
+     Galpa\Permission\PermissionServiceProvider::class,
+];
+```
+
+Al continuar, el middleware `\Galpa\Permission\Middleware\Authorize::class`- debe registrarse en el Kernell:
+
+```php
+//app/Http/Kernel.php
+
+protected $routeMiddleware = [
+  ...
+  'can' => \Galpa\Permission\Middleware\Authorize::class,
+];
+```
+
+Naming the middleware `can` is just a suggestion. You can give it any name you'd like.
+
+The `authorize`-middleware includes all functionality provided by the standard `auth`-middleware. So you could
+also opt to replace the `App\Http\Middleware\Authenticate`-middleware by `Spatie\Authorize\Middleware\Authorize`:
+
+```php
+//app/Http/Kernel.php
+
+protected $routeMiddleware = [
+    'auth' => 'Galpa\Permission\Middleware\Authorize',
+    ...
+];
+```
+
+Para publicar los archivos de configuración utiliza:
+```bash
+php artisan vendor:publish --provider="Galpa\Permission\PermissionServiceProvider"
+```
+
+## Uso
+
+### Chequear Autorización
+Cuando se utiliza el middleware sin ningún parámetro, solo se permitirá a los usuarios registrados para utilizar la ruta.
+Si usted planea usar el middleware como esto te recomiendo que sustituya el `middleware auth` estándar con el proporcionado por este paquete.
+```php
+//only logged in users will be able to see this
+
+Route::get('/top-secret-page', ['middleware'=> 'auth','uses' => 'TopSecretController@index']);
+```
+
+### Chequear Autorización
+El middleware acepta el nombre de un permiso que ha definido como el primer parámetro:
+
+```php
+//only users with the viewTopSecretPage-ability be able to see this
+
+Route::get('/top-secret-page', [
+   'middleware'=> 'can:viewTopSecretPage',
+   'uses' => 'TopSecretController@index',
+]);
+```
+
+### Usando form Model Binding
+
+```php
+//inside the boot method of AuthServiceProvider
+
+$gate->define('update-post', function ($user, $post) {
+    return $user->id === $post->user_id;
+});
+```
+
+El middleware acepta el nombre de un modelo como el segundo parámetro.
+```php
+Route::get('/post/{post}', [
+   'middleware'=> 'can:editPost,post',
+   'uses' => 'PostController@edit'),
+]);
+```
+
+Behind the scene the middleware will pass the model bound that is bound to the round to
+the defined `update-post`-ability.
+
+## What happens with unauthorized requests?
+
+### Default behaviour
+
+This is the default behaviour defined in the middleware.
+
+```php
+use Symfony\Component\HttpKernel\Exception\HttpException;
+...
+
+protected function handleUnauthorizedRequest($request, $ability = null, $model = null)
+{
+    if ($request->ajax()) {
+        return response('Unauthorized.', Response::HTTP_UNAUTHORIZED);
+    }
+
+    if (!$request->user()) {
+        return redirect()->guest(config('laravel-authorize.login_url'));
+    }
+
+    throw new HttpException(Response::HTTP_UNAUTHORIZED, 'This action is unauthorized.');
+}
+```
+
+So guests will get redirected to the default login page, logged in users will get a response
+with status `HTTP_UNAUTHORIZED` aka 401.
+
+### Custom behaviour
+
+To customize the default behaviour you can easily extend the default middleware and
+override the `handleUnauthorizedRequest`-method. Don't forget to register your class at the kernel.
+
+If you would like to let all unauthorized users know that you are actually a teapot you can do so.
+
+```php
+//app/Http/Middleware/Authorize.php
+
+namespace App\Http\Middleware;
+
+use Spatie\Authorize\Middleware\Authorize as BaseAuthorize;
+use Symfony\Component\HttpFoundation\Response;
+
+class Authorize extends BaseAuthorize
+{
+    protected function handleUnauthorizedRequest($request, $ability = null, $model = null)
+    {
+        return reponse('I am a teapot.', Response::HTTP_I_AM_A_TEAPOT);
+    }
+}
+```
+
+En el kernel:
+
+```php
+//app/Http/Kernel.php
+
+  protected $routeMiddleware = [
+        'can' => 'App\Http\Middleware\Authorize',
+        ...
+    ];
+```
+
+
+
+
