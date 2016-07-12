@@ -117,6 +117,38 @@ class User extends Authenticatable
 }
 ```
 
+HasRoles añade relaciones de eloquent a los modelos, se puede acceder directamente o utilizarse como una consulta base.
+
+```php
+$permissions = $user->permissions;
+$roles = $user->roles()->pluck('name');
+```
+
+### Usando Permisos
+
+Un permiso puede ser dado a un usuario de la siguiente manera:
+
+```php
+$user->givePermissionTo('edit articles');
+```
+
+Para revocar un permiso: 
+
+```php
+$user->revokePermissionTo('edit articles');
+```
+
+Para probar si un usuario tiene un permiso: 
+
+```php
+$user->hasPermissionTo('edit articles');
+```
+
+Los permisos son registrados dentro de la clase `Illuminate\Auth\Access\Gate`. Es decir tambien se puede probar si un usuario tiene un permiso con la funcion por defecto de laravel `can`.
+
+```php
+$user->can('edit articles');
+```
 
 ### Chequear Autorización
 Cuando se utiliza el middleware sin ningún parámetro, solo se permitirá a los usuarios registrados para utilizar la ruta.
@@ -158,6 +190,41 @@ Route::get('/post/{post}', [
 ```
 
 
+###Usando Directevas de Blade 
 
+```php
+@role('writer')
+I'm a writer!
+@else
+I'm not a writer...
+@endrol
+
+```php
+@hasrole('writer')
+I'm a writer!
+@else
+I'm not a writer...
+@endhasrole
+```
+
+```php
+@hasanyrole(Role::all())
+I have one or more of these roles!
+@else
+I have none of these roles...
+@endhasanyrole
+```
+
+```php
+@hasallroles(Role::all())
+I have all of these roles!
+@else
+I don't have all of these roles...
+@endhasallroles
+
+
+@permission('viewAdmin')
+	I have permission to viewAdmin
+@endpermission
 
 
