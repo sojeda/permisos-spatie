@@ -91,13 +91,38 @@ Para publicar los archivos de configuración utiliza:
 php artisan vendor:publish --provider="Galpa\Permission\PermissionServiceProvider"
 ```
 
+Este paquete asume que la tabla de usuarios es llamada "users". Si no es el caso, se debe editar manualmente en la migracion que se importe con el comando anterior.
+
+Se pueden cambiar los nombre de las tablas que vienen por defecto, a tráves del archivo laravel-permission.php que se publica dentro del config de la aplicacion.
+
+Luego hay que importar las migraciones 
+
+```bash
+php artisan migrate
+```
+
 ## Uso
+
+Primero hay que agregar el trait en el modelo usuario `Galpa\Permission\Traits\HasPermission;`.
+
+```php
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Spatie\Permission\Traits\HasRoles;
+
+class User extends Authenticatable
+{
+    use HasPermission;
+    
+    // ...
+}
+```
+
 
 ### Chequear Autorización
 Cuando se utiliza el middleware sin ningún parámetro, solo se permitirá a los usuarios registrados para utilizar la ruta.
 Si usted planea usar el middleware como esto te recomiendo que sustituya el `middleware auth` estándar con el proporcionado por este paquete.
 ```php
-//only logged in users will be able to see this
+// Solo los usuariosas registrados pueden ver esto
 
 Route::get('/top-secret-page', ['middleware'=> 'auth','uses' => 'TopSecretController@index']);
 ```
