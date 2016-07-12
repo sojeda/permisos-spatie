@@ -447,6 +447,15 @@ I don't have all of these roles...
 @endpermission
 ```
 
+## Vistas
+
+El paquete contara con una interfaz gráfica para crear y asignar los permisos a Usuarios, ademas nos permitira crear un grupo con acciones predeterminadas.
+
+Por ejemplo, al crear un Grupo 'products' este nos permitira crear por selección permisos (o acciones) predeterminados para trabajar con dicho grupo, es decir nos crearia permisos del tipo action-products (create-products, update-products, delete-products, etc). De esta manera ahorra tiempo a la hora de crear permisos que siempre se suelen utilizar.
+
+Aunque cabe destacar que igual manera se pueden crear permisos de cualquier nombre para el uso interno sin ningun problema. Esto debido a que no es recomendable casar una accion con un grupo o menu. Ya que esto cierra las posibilidades de escalar.
+
+
 ## Errores y Seguridad
 Si de casualidad descubre algun error funcional, o alguna fuga de seguridad, no dude en comunicarse con sojeda@galpservices.com
 
