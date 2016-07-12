@@ -99,6 +99,17 @@ Para publicar los archivos de configuración utiliza:
 php artisan vendor:publish --provider="Galpa\Permission\PermissionServiceProvider"
 ```
 
+Tambien se puede importar solo el archivo de configuracion con:
+```bash
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="config"
+```
+
+O solo el de migraciones: 
+
+```bash
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="migrations"
+```
+
 Este paquete asume que la tabla de usuarios es llamada "users". Si no es el caso, se debe editar manualmente en la migracion que se importe con el comando anterior.
 
 Se pueden cambiar los nombre de las tablas que vienen por defecto, a tráves del archivo laravel-permission.php que se publica dentro del config de la aplicacion.
@@ -281,6 +292,8 @@ Luego hay que importar las migraciones
 php artisan migrate
 ```
 
+Eso creara las tablas dentro de la base de Datos para poder utilizar el paquete, sin necesidad de modificar nada.
+
 ## Uso
 
 Primero hay que agregar el trait en el modelo usuario `Galpa\Permission\Traits\HasPermission;`.
@@ -329,6 +342,29 @@ Los permisos son registrados dentro de la clase `Illuminate\Auth\Access\Gate`. E
 ```php
 $user->can('edit articles');
 ```
+
+Entre otros...
+
+### Roles
+
+En caso de que se necesiten roles para trabajar, tenemos lo siguiente:
+
+Asigar in rol a un Usuario
+```php
+$user->assignRole('writer');
+```
+
+Quitar Rol al Usuario
+```php
+$user->removeRole('writer');
+```
+
+Determinar si un Usuario tiene un rol
+```php
+$user->hasRole('writer');
+```
+
+Entre otros...
 
 ### Chequear Autorización
 Cuando se utiliza el middleware sin ningún parámetro, solo se permitirá a los usuarios registrados para utilizar la ruta.
