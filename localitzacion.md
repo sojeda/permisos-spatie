@@ -5,39 +5,46 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/themsaid/laravel-multilingual.svg?style=flat-square)](https://packagist.org/packages/themsaid/laravel-multilingual)
 
 
-This laravel package makes Eloquent Models attributes translatable without the need to separate database tables for translation values.
+Este paquete de Laravel ofrece atributos traducibles para Modelos de Eloquent sin la necesidad de separar las tablas de la Base de Datos para los valorers de traducción o crear varios cambios dentro de las tablas de los modelos. 
 
-You simply call `$country->name` and you get a value based on your application's current locale.
+Simplemente llamando a `$country->name` se puede obtener un valor basado en la localizacion o idioma actual de la aplicación.
 
-You can also call `$country->nameTranslations->en` to get the value of a specific locale.
+Tambien se puede llamar a `$country->nameTranslations->en` para obtener el valor de una configuracion regional espesifica.
 
-You can check all the translations of a given attributes as easy as `$country->nameTranslations->toArray()`.
+Por ultimo se pueden comprobar todas las traducciones de un determinado atributo tan fácil como llamar a `$country->nameTranslations->toArray()`.
 
-## Installation
+## Beneficios
 
-Begin by installing the package through Composer. Run the following command in your terminal:
+* Facilidad de Uso.
+* Rapidez en la Busqueda de Datos (es sumamente más rapido buscar dentro de un registro, que buscar en multiples registros).
+* Mejora la integridad de la Base de Datos
+* Evita la necesidad de hacer querys complejos solo para obtener un dato de un idioma (Resuelvo problema N +1)
+
+## Instalacion
+
+Puede comenzar instalando el paquete a traves de Composer ejecutando el siguiente comando en la terminal:
 
 ```
 composer require themsaid/laravel-multilingual
 ```
 
-Once composer is done, add the package service provider in the providers array in `config/app.php`
+Cuando este listo agregue el service provider del paquete dentro del archivo `config/app.php`
 
 ```
 Themsaid\Multilingual\MultilingualServiceProvider::class
 ```
 
-Finally publish the config file:
+Finalmente ejecute el comando publish para importar el archivo de congiruacion.
 
 ```
 php artisan vendor:publish
 ```
 
-That's all, you are now good to go.
+Eso es todo, puede ahora a comenzar las utilidades.
 
-# Usage
+# Uso
 
-First you need to make sure that the translatable attributes has a mysql field type of text or json, if you are building the database from a migration file you may do this:
+Lo primero que necesita para asegurarse de que los atributos sean traducibles es tener un tipo de campo de texto o MySQL JSON, si está construyendo la base de datos desde un archivo de migración que puede hacer esto:
 
 ```php
 <?php
@@ -49,7 +56,7 @@ Schema::create('countries', function (Blueprint $table)
 });
 ```
 
-Now that you have the database ready to save a JSON string, you need to prepare your models:
+Ahora que tiene la base de datos para guardar una cadena JSON, es necesario preparar los modelos:
 
 ```php
 <?php
@@ -64,11 +71,11 @@ class Country extends Model
 }
 ```
 
-- Add the `Translatable` trait to your model class
-- Add a public class property `$translatable` as an array that holds the names of the translatable fields in your model.
-- Remember to cast the translatable attribute as 'array' in the `$casts` property of the model.
+- Agregar el trait `Translatable` para la clase del modelo.
+- Agregar el atributo `punlic $translatable` con una matriz con los nombre de los campos que tienen traducción.
+- Recordar que debes colocar los atributos traducibles como array en la propiedad `$casts` del modelo.
 
-Now our model has the `name` attribute translatable, so on creating a new Model you may specify the name field as follow:
+Ahora, nuestro modelo tiene `name` como un campo traducible, por lo que en la creacion del nuevo modelo se puede espesificar e campo name de la siguiente manera.
 
 ```php
 <?php
@@ -81,32 +88,33 @@ Country::create([
 ]);
 ```
 
-It'll be automatically converted to a JSON string and saved in the name field of the database, you can later retrieve the name like this:
+Se va a convertir automáticamente a una cadena JSON y lo guarda en el campo name de la base de datos, se puede recuperar posteriormente el nombre de la siguiente manera:
 
 ```
 $country->name
 ```
 
-This will return the country name based on the current locale, if the current locale doesn't have a value then the `fallback_locale` defined in the config file will be used.
+Esto devolvera el nombre del país en la base de datos segun la configuracion de localizacion que este definida, en caso de que este no tenga ningun valor se usara el `fallback_locale` que se haya colocado en el fichero de configuración.
 
-In case nothing can be found an empty string will be returned.
+En caso de que no se puede encontrar se devolverá una cadena vacía.
 
-You may also want to return the value for a specific locale, you can do that using the following syntax:
+También es posible que desee devolver el valor para una configuración regional específica, puede hacerlo utilizando la siguiente sintaxis:
 
 ```
 $country->nameTranslations->en
 ```
 
-This will return the English name of the country.
+Esto devolverá el nombre en Inglés del país (country).
 
-To return an array of all the available translations you may use:
+Para devolver una matriz de todos los idiomas disponibles se puede utilizar:
 
 ```
 $country->nameTranslations->toArray()
 ```
 
-# Validation
-You can use the new array validation features released with laravel 5.2 to validate the presence of specific locales:
+# Validaciones
+
+Puede utilizar las nuevas funciones de validación de matriz de Laravel 5.2 para validar la presencia de los lugares específicos:
 
 ```php
 <?php
@@ -117,7 +125,7 @@ $validator = Validator::make(
 );
 ```
 
-However a validation rule is included in this package that deals with requiring all the validations to be provided:
+Sin embargo se incluye una regla de validación en este paquete que se ocupa de todas las validaciones que requieran:
 
 ```php
 <?php
@@ -128,25 +136,24 @@ $validator = Validator::make(
 );
 ```
 
-The `translatable_required` rule will make sure all the values of the available locales are set.
+La regla de `translatable_required` se asegurará de que todos los valores de los locales disponibles se establezcan.
 
-You may define the available locales as well as the fallback_locale from the package config file.
+Se pueden definir los tipos de traducciones disponibles asi como el fallback locale desde el archivo de configuracion del paquete.
 
-Now you only need to add the translated message of our new validation rule, add this to the `validation.php` translation file:
+Ahora solo se tiene que añadir el mensaje traducido de nuestra nueva regla de validacion, agregando esto al archivo de traduccion `validation.php`:
 
 ```
 'translatable_required' => 'The :attribute translations must be provided.',
 ```
 
 # Queries
-If you're using MySQL 5.7 or above, it's recommended that you use the json data type for housing translations in the Database,
-this will allow you to query these columns like this:
+Si estás usando MySQL 5.7 o superior, se recomienda que utilice el tipo de datos JSON para las traducciones de en la base de datos, esto le permitirá consultar estas columnas como esta:
 
 ```php
 Company::whereRaw('name->"$.en" = \'Monsters Inc.\'')->orderByRaw('specs->"$.founded_at"')->get();
 ```
 
-However in laravel 5.2.23 and above you can use the fluent syntax:
+Sin embargo, en laravel 5.2.23 y superiores se puede utilizar la sintaxis con fluidez:
 
 ```php
 Company::where('name->en', 'Monsters Inc.')->orderBy('specs->founded_at')->get();
