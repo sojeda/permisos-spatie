@@ -317,6 +317,15 @@ $permissions = $user->permissions;
 $roles = $user->roles()->pluck('name');
 ```
 
+### Seeders 
+
+El paquete de por si nos facilita la creacion de datos de Pruebas a tráves de los Seeders, tenemos a nuestra disposición 5 de ellos, los cuales son:
+* UserTableSeeder.php -> Nos crea dos usuarios por defecto Admin y User.
+* PermissionGroupableSeeder.php -> Nos Crea cuatro grupos dentro de la tabla espesificada en grupos los cuales seran: Access, User, Role y Permission.
+* PermissionTableSeeder.php -> Nos crea una serie de permisos por defecto como el CRUD-permissions, CRUD-roles y dos llamados View Backend y View Access Management. Dentro del codigo estan comentados otros permisos referentes al CRUD-users.
+* RoleTableSeeder.php -> Nos crea automaticamente dos clases de rol, uno llamado Administrator y otro llamado User.
+* UserRoleTableSeeder.php -> Nos asigna los roles a los dos pares de usuarios creados en UserTableSeeder.php
+
 ### Usando Permisos
 
 Un permiso puede ser dado a un usuario de la siguiente manera:
